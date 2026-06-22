@@ -1,0 +1,13 @@
+/server
+├── /config
+│   └── db.js          # Chứa cấu hình kết nối PostgreSQL
+├── /controllers
+│   ├── authController.js    # Logic đăng ký, đăng nhập
+│   ├── deviceController.js  # Logic thêm, sửa, xóa thiết bị
+│   └── metricController.js  # Logic lấy dữ liệu vẽ chart
+├── /routes
+│   ├── authRoutes.js
+│   ├── deviceRoutes.js
+│   └── metricRoutes.js
+├── .env               # Chứa DB_URL, JWT_SECRET, PORT...
+├── server.js          # File chạy chính (entry point)
