@@ -8,7 +8,7 @@ const pool = new Pool({
     }
 });
 
-// Bắt lỗi nếu pool gặp vấn đề (ví dụ: rớt mạng)
+// Log
 pool.on('error', (err, client) => {
     console.error('Unexpected error on idle client', err);
     process.exit(-1);
