@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middlewares/authMiddleware');
 
 //Device listing
-router.get('/', (req, res) =>  {
+router.get('/', verifyToken, (req, res) =>  {
     res.status(201).json({
         message: 'Successfully retrieving device data',
         devices: [
@@ -12,7 +13,7 @@ router.get('/', (req, res) =>  {
 });
 
 //Adding device
-router.post('/', (req, res) => {
+router.post('/', verifyTokenm, (req, res) => {
     res.status(201).json({
         message: 'Successfully adding new device',
         new_device: req.body
