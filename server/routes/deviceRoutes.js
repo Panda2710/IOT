@@ -1,23 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middlewares/authMiddleware');
+const deviceController = require('../controllers/deviceController');
 
-//Device listing
-router.get('/', verifyToken, (req, res) =>  {
-    res.status(201).json({
-        message: 'Successfully retrieving device data',
-        devices: [
-            { device_id: 'ESP_001', name: 'PC Gaming', status: true }
-        ]
+//Scan thiết bị mới
+router.get('/scan', verifyToken, (req, res) => {
+    res.status(200).json({
+        message: 'Danh sách thiết bị quét được',
+        devices: global.discoveredDevices || []
     });
 });
-
-//Adding device
-router.post('/', verifyTokenm, (req, res) => {
-    res.status(201).json({
-        message: 'Successfully adding new device',
-        new_device: req.body
-    });
-});
+// Mọi route trong file này đều phải đi qua chốt chặn verifyToken
+router.get('/', verifyToken, deviceController.getDevices);
+router.post('/', verifyToken, deviceController.addDevice);
 
 module.exports = router;
