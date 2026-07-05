@@ -1,4 +1,5 @@
 const mqtt = require('mqtt');
+const db = require('./db');
 
 // Dùng biến global để lưu tạm danh sách các thiết bị vừa quét được
 global.discoveredDevices = []; 
@@ -8,15 +9,18 @@ const connectMQTT = () => {
     const client = mqtt.connect('mqtt://broker.hivemq.com:1883');
 
     client.on('connect', () => {
-        console.log('✅ Đã kết nối tới MQTT Broker (HiveMQ)');
+        console.log('Đã kết nối tới MQTT Broker (HiveMQ)');
         
-        // Đăng ký lắng nghe kênh (topic) dành riêng cho việc tìm thiết bị mới
-        client.subscribe('tcta/hk3/2026/nhom2/discovery', (err) => {
-            if (!err) console.log('🎧 Đang lắng nghe thiết bị ESP32 mới...');
+        // Nghe kênh 1: Tìm thiết bị mới (Discovery)
+        client.subscribe('tcta/hk3/2026/nhom2/discovery');
+        
+        // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
+        client.subscribe('tcta/hk3/2026/nhom2/data', (err) => {
+            if (!err) console.log('🎧 Đang lắng nghe dữ liệu cảm biến...');
         });
     });
 
-    client.on('message', (topic, message) => {
+    client.on('message', async (topic, message) => {
         if (topic === 'tcta/hk3/2026/nhom2/discovery') {
             try {
                 const data = JSON.parse(message.toString());
@@ -36,6 +40,31 @@ const connectMQTT = () => {
                 }
             } catch (error) {
                 console.error('Lỗi đọc dữ liệu MQTT:', error.message);
+            }
+        }
+
+        if (topic === 'tcta/hk3/2026/nhom2/data') {
+            try {
+                const data = JSON.parse(message.toString());
+                
+                // Đảm bảo ESP32 gửi đủ 3 thông số: mac, temp, hum
+                if (data.mac && data.temp !== undefined && data.hum !== undefined) {
+                    
+                    // Thực thi SQL chèn thẳng vào bảng metrics
+                    await db.query(
+                        'INSERT INTO metrics(device_id, temperature, humidity) VALUES($1, $2, $3)',
+                        [data.mac, data.temp, data.hum]
+                    );
+                    
+                    console.log(`Đã lưu DB -> Thiết bị [${data.mac}] | Nhiệt độ: ${data.temp}°C | Độ ẩm: ${data.hum}%`);
+                }
+            } catch (error) {
+                // Bắt lỗi 23503 (Khóa ngoại): Nếu ESP32 gửi data nhưng cái MAC này chưa được thêm vào bảng Devices
+                if (error.code === '23503') {
+                    console.log(`⚠️ Cảnh báo: Thiết bị [${JSON.parse(message.toString()).mac}] đang gửi dữ liệu nhưng chưa được đăng ký trong hệ thống!`);
+                } else {
+                    console.error('Lỗi lưu dữ liệu Metrics:', error.message);
+                }
             }
         }
     });
