@@ -9,7 +9,7 @@ const getDevices = async (req, res) => {
         );
 
         res.status(200).json({
-            message: 'Successfully retrieve device list',
+            message: 'Lấy danh sách thiết bị thành công',
             devices: result.rows
         });
     } catch (err) {
@@ -23,7 +23,7 @@ const addDevice = async (req, res) => {
     const userId = req.user.user_id;
 
     if (!device_id || !device_name) {
-        return res.status(400).json({ error: 'Please provide device ID or device name' });
+        return res.status(400).json({ error: 'Hãy điền mã thiết bị hoặc tên thiết bị' });
     }
 
     try {
@@ -41,7 +41,7 @@ const addDevice = async (req, res) => {
             return res.status(409).json({ error: 'Mã thiết bị này đã tồn tại trên hệ thống' });
         }
         console.error(err);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Lỗi server' });
     }
 };
 

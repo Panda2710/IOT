@@ -16,7 +16,7 @@ const connectMQTT = () => {
         
         // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
         client.subscribe('tcta/hk3/2026/nhom2/data', (err) => {
-            if (!err) console.log('🎧 Đang lắng nghe dữ liệu cảm biến...');
+            if (!err) console.log('Đang lắng nghe dữ liệu cảm biến...');
         });
     });
 
@@ -35,7 +35,7 @@ const connectMQTT = () => {
                             name: data.name || 'ESP32 Không tên',
                             discovered_at: new Date()
                         });
-                        console.log(`🔍 Phát hiện thiết bị mới: ${data.mac}`);
+                        console.log(`Phát hiện thiết bị mới: ${data.mac}`);
                     }
                 }
             } catch (error) {
@@ -58,10 +58,79 @@ const connectMQTT = () => {
                     
                     console.log(`Đã lưu DB -> Thiết bị [${data.mac}] | Nhiệt độ: ${data.temp}°C | Độ ẩm: ${data.hum}%`);
                 }
+
+                const TEMP_THRESHOLD = 70.0; // Ngưỡng nhiệt độ nguy hiểm: 70 độ C
+                const HUM_THRESHOLD = 90.0; // Ngưỡng độ ẩm nguy hiểm: 90%
+                const COOLDOWN_MINUTES = 5;
+                    if (data.temp >= TEMP_THRESHOLD) {
+                        const alertType = 'HIGH_TEMP';
+
+                        const checkAlert = await db.query(
+                            `SELECT EXTRACT(EPOCH FROM (NOW() - triggered_at)) / 60 AS diff_minutes
+                             FROM alert_logs 
+                             WHERE device_id = $1 AND alert_type = $2 
+                             ORDER BY triggered_at DESC LIMIT 1`,
+                            [data.mac, alertType]
+                        );
+
+                        let shouldAlert = true;
+
+                        if (checkAlert.rows.length > 0) {
+                            const diffMinutes = checkAlert.rows[0].diff_minutes;
+
+                            // Nếu khoảng cách nhỏ hơn 5 phút -> Bỏ qua không cảnh báo nữa
+                            if (diffMinutes < COOLDOWN_MINUTES) {
+                                shouldAlert = false;
+                                console.log(`Cooldown: Bỏ qua cảnh báo spam cho thiết bị [${data.mac}]`);
+                            }
+                        }
+
+                        if(shouldAlert) {
+                            const alertMsg = `Cảnh báo khẩn! Nhiệt độ đạt mức ${data.temp}°C`;
+                            await db.query(
+                                'INSERT INTO alert_logs(device_id, alert_type, message) VALUES($1, $2, $3)',
+                                [data.mac, alertType, alertMsg]
+                            );
+                            // In ra terminal
+                            console.log(`\x1b[31mBÁO ĐỘNG: ${alertMsg} [Thiết bị: ${data.mac}]\x1b[0m`);
+                        }
+
+                    }
+                    if (data.hum >= HUM_THRESHOLD) {
+                        const alertType = 'HIGH_HUMIDITY';
+                        const checkAlert = await db.query(
+                            `SELECT EXTRACT(EPOCH FROM (NOW() - triggered_at)) / 60 AS diff_minutes 
+                             FROM alert_logs
+                             WHERE device_id = $1 AND alert_type = $2 
+                             ORDER BY triggered_at DESC LIMIT 1`,
+                            [data.mac, alertType]
+                        );
+
+                        let shouldAlert = true;
+
+                        if (checkAlert.rows.length > 0) {
+                            const diffMinutes = checkAlert.rows[0].diff_minutes;
+
+                            // Nếu khoảng cách nhỏ hơn 5 phút -> Bỏ qua không cảnh báo nữa
+                            if (diffMinutes < COOLDOWN_MINUTES) {
+                                shouldAlert = false;
+                                console.log(`Cooldown: Bỏ qua cảnh báo spam cho thiết bị [${data.mac}]`);
+                            }
+                        }
+                        if(shouldAlert) {
+                            const alertMsg = `Cảnh báo khẩn! Độ ẩm đạt mức ${data.hum}%`
+
+                            await db.query(
+                                'INSERT INTO alert_logs(device_id, alert_type, message) VALUES($1, $2, $3)',
+                                [data.mac, alertType, alertMsg]
+                            );
+                            console.log(`\x1b[31mBÁO ĐỘNG: ${alertMsg} [Thiết bị: ${data.mac}]\x1b[0m`);
+                        }
+                    }
             } catch (error) {
                 // Bắt lỗi 23503 (Khóa ngoại): Nếu ESP32 gửi data nhưng cái MAC này chưa được thêm vào bảng Devices
                 if (error.code === '23503') {
-                    console.log(`⚠️ Cảnh báo: Thiết bị [${JSON.parse(message.toString()).mac}] đang gửi dữ liệu nhưng chưa được đăng ký trong hệ thống!`);
+                    console.log(`Cảnh báo: Thiết bị [${JSON.parse(message.toString()).mac}] đang gửi dữ liệu nhưng chưa được đăng ký trong hệ thống!`);
                 } else {
                     console.error('Lỗi lưu dữ liệu Metrics:', error.message);
                 }

@@ -10,7 +10,7 @@ const pool = new Pool({
 
 // Log
 pool.on('error', (err, client) => {
-    console.error('Unexpected error on idle client', err);
+    console.error('Lỗi không xác định do treo DB', err);
     process.exit(-1);
 });
 
