@@ -1,10 +1,12 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const db = require('./config/db');
 
+const db = require('./config/db');
+const connectMQTT = require('./config/mqtt');
 const app = express();
 
+connectMQTT();
 app.use(cors()); 
 app.use(express.json()); 
 
