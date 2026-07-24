@@ -14,10 +14,13 @@ const connectMQTT = () => {
         // Nghe kênh 1: Tìm thiết bị mới (Discovery)
         client.subscribe('tcta/hk3/2026/nhom2/discovery');
         
-        // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
+        // Nghe kênh 2: Hứng dữ liệu cảm biến (Data) - dùng cho luồng đo nhiệt độ và độ ẩm.
         client.subscribe('tcta/hk3/2026/nhom2/data', (err) => {
             if (!err) console.log('Đang lắng nghe dữ liệu cảm biến...');
         });
+
+        //Nghe kênh 3: Dữ liệu cảnh báo khẩn cấp - dùng cho luồng chống cháy và chống trộm.
+        client.subscribe('tcta/hk3/2026/nhom2/alerts');
     });
 
     client.on('message', async (topic, message) => {
@@ -40,6 +43,29 @@ const connectMQTT = () => {
                 }
             } catch (error) {
                 console.error('Lỗi đọc dữ liệu MQTT:', error.message);
+            }
+        }
+
+        if(topic === 'tcta/hk3/2026/nhom2/alerts') {
+            try {
+                // Cấu trúc JSON alert
+                // {
+                //     "mac": "24:0A:C4:5E:2B:11", 
+                //     "type": "THEFT_DETECTED" || "FIRE_DETECTED" ,
+                //     "msg": "Cảnh báo: Vỏ case bị mở trái phép!" || "Nguy hiểm: Phát hiện khói/chập cháy!"
+                // }
+                const alertData = JSON.parse(message.toString());
+                if (alertData.mac && alertData.type && alertData.msg) {
+
+                    await db.query(
+                        'INSERT INTO alert_logs(device_id, alert_type, message) VALUES($1, $2, $3)',
+                        [alertData.mac, alertData.type, alertData.msg]
+                    );
+
+                    console.log(`\x1b[41m\x1b[37m [KHẨN CẤP] ${alertData.msg} [Thiết bị: ${alertData.mac}] \x1b[0m`);
+                }
+            } catch (error) {
+                console.log('Lỗi lưu luồng sự kiện khẩn cấp:', error.message);
             }
         }
 

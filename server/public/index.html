@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wireframe - Smart PC Case Dashboard</title>
+    <!-- Tải Tailwind CSS để thiết kế giao diện -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tải Chart.js để vẽ biểu đồ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tải FontAwesome cho các icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .wireframe-container { border: 2px dashed #9ca3af; }
+    </style>
+</head>
+<body class="p-8 space-y-12">
+
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Wireframe: Hệ thống Giám sát Smart PC Case</h1>
+        <p class="text-gray-500 mt-2">Dùng công cụ Snipping Tool để chụp các khung bên dưới và dán vào báo cáo Đề cương (Mục 2.2).</p>
+    </div>
+
+    <!-- MÀN HÌNH 1: ĐĂNG NHẬP -->
+    <div>
+        <h2 class="text-xl font-bold text-blue-600 mb-4"><i class="fa-solid fa-1"></i> (Vùng 1) Màn hình Đăng nhập (Login / Register)</h2>
+        <div class="wireframe-container bg-white p-12 rounded-xl shadow-lg flex justify-center items-center max-w-4xl mx-auto relative">
+            
+            <span class="absolute top-2 right-2 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">(Vùng 1 - ID 8) Login / Register</span>
+            <div class="w-full max-w-md bg-gray-50 rounded-lg shadow-md p-8 border border-gray-200">
+                <div class="text-center mb-6">
+                    <i class="fa-solid fa-shield-halved text-4xl text-blue-500 mb-2"></i>
+                    <h2 class="text-2xl font-bold text-gray-800">Smart PC Case</h2>
+                    <p class="text-sm text-gray-500">Đăng nhập hệ thống giám sát</p>
+                </div>
+                
+                <form class="space-y-4" onsubmit="event.preventDefault();">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tài khoản (Username)</label>
+                        <input type="text" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="admin">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Mật khẩu (Password)</label>
+                        <input type="password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="••••••••">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                            <label for="remember-me" class="ml-2 block text-sm text-gray-900"> Ghi nhớ đăng nhập </label>
+                        </div>
+                    </div>
+                    <button type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Đăng Nhập (Login)
+                    </button>
+                    <div class="text-center mt-2">
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-500">Chưa có tài khoản? Đăng ký ngay</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 2: DASHBOARD CHÍNH -->
+    <div class="mt-16">
+        <h2 class="text-xl font-bold text-green-600 mb-4"><i class="fa-solid fa-2"></i> Màn hình Quản lý chính (Dashboard)</h2>
+        <!-- LOẠI BỎ OVERFLOW-HIDDEN TẠI ĐÂY -->
+        <div class="wireframe-container bg-gray-100 rounded-xl shadow-lg max-w-6xl mx-auto border border-gray-300 relative">
+            
+            <!-- Navbar -->
+            <nav class="bg-white border-b border-gray-200 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 relative rounded-t-xl z-10">
+                <span class="absolute -top-3 left-6 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded border border-gray-200 shadow-sm z-20">(Vùng 5) Device Manager</span>
+                
+                <!-- Cụm Logo và Chọn thiết bị -->
+                <div class="flex items-center gap-3 w-full md:w-auto pt-2 md:pt-0">
+                    <div class="flex items-center gap-2 mr-2">
+                        <i class="fa-solid fa-computer text-blue-600 text-2xl"></i>
+                        <span class="text-xl font-bold text-gray-800 hidden lg:block">Smart PC</span>
+                    </div>
+                    
+                    <!-- Dropdown chọn thiết bị (Vùng 5) -->
+                    <div class="relative flex-grow md:flex-grow-0 min-w-[220px]">
+                        <select class="w-full appearance-none bg-blue-50 border border-blue-200 text-blue-800 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block py-2.5 pl-4 pr-8 font-semibold shadow-sm cursor-pointer hover:bg-blue-100 transition">
+                            <option selected>💻 PC Gaming Phòng Ngủ</option>
+                            <option value="2">🖥️ Máy trạm Công ty</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-blue-800">
+                            <i class="fa-solid fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+
+                    <!-- Nút thêm thiết bị -->
+                    <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-2.5 rounded-lg text-sm font-medium transition shadow-sm flex items-center gap-2" title="Thêm thiết bị mới">
+                        <i class="fa-solid fa-plus text-blue-600"></i> <span class="hidden sm:inline">Thêm Case</span>
+                    </button>
+                </div>
+
+                <!-- Cụm User -->
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-600"><i class="fa-solid fa-user-circle text-lg align-middle"></i> Xin chào, <b>Admin</b></span>
+                    <button class="text-sm text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-md transition"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
+                </div>
+            </nav>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 rounded-b-xl overflow-hidden relative">
+                
+                <!-- CỘT TRÁI: THÔNG SỐ & ĐIỀU KHIỂN -->
+                <div class="space-y-6">
+                    
+                    <!-- THÔNG SỐ HIỆN TẠI -->
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-blue-500 relative">
+                        <span class="absolute top-2 right-2 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">(Vùng 2 - ID 1, 7) Chart & Info</span>
+                        <h3 class="text-gray-500 text-sm font-semibold mb-4 uppercase">Thông số môi trường</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-red-100 p-3 rounded-full text-red-500"><i class="fa-solid fa-temperature-three-quarters text-xl"></i></div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Nhiệt độ (DHT22)</p>
+                                    <p class="text-2xl font-bold text-gray-800">38.5 °C</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-100 p-3 rounded-full text-blue-500"><i class="fa-solid fa-droplet text-xl"></i></div>
+                                <div>
+                                    <p class="text-xs text-gray-500">Độ ẩm (DHT22)</p>
+                                    <p class="text-2xl font-bold text-gray-800">55.0 %</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BẢNG ĐIỀU KHIỂN THỦ CÔNG (Vùng 4) -->
+                    <div class="bg-white p-5 rounded-lg shadow border-l-4 border-green-500 relative">
+                        <span class="absolute top-2 right-2 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">(Vùng 4 - ID 2, 5) Controls</span>
+                        <h3 class="text-gray-500 text-sm font-semibold mb-4 uppercase">Điều khiển thủ công</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Nút Quạt -->
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-200">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-fan text-gray-600"></i>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Quạt thông gió</p>
+                                        <p class="text-xs text-green-600">Đang bật (Relay ON)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium shadow transition">
+                                    TẮT
+                                </button>
+                            </div>
+
+                            <!-- Nút Còi -->
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-200">
+                                <div class="flex items-center gap-3">
+                                    <i class="fa-solid fa-bullhorn text-gray-600"></i>
+                                    <div>
+                                        <p class="text-sm font-bold text-gray-800">Còi báo động</p>
+                                        <p class="text-xs text-gray-500">Đang tắt (Buzzer OFF)</p>
+                                    </div>
+                                </div>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium shadow transition">
+                                    BẬT HÚ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- CỘT PHẢI: BIỂU ĐỒ & CẢNH BÁO -->
+                <div class="md:col-span-2 space-y-6">
+                    
+                    <!-- BIỂU ĐỒ (Vùng 2) -->
+                    <div class="bg-white p-5 rounded-lg shadow relative">
+                        <span class="absolute top-2 right-2 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">(Vùng 2 - ID 1, 7) Chart & Info</span>
+                        <h3 class="text-gray-500 text-sm font-semibold mb-2 uppercase">Biểu đồ Nhiệt độ theo thời gian</h3>
+                        <div class="w-full h-64">
+                            <!-- Canvas cho Chart.js -->
+                            <canvas id="tempChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- DANH SÁCH CẢNH BÁO (Vùng 3) -->
+                    <div class="bg-white p-5 rounded-lg shadow relative">
+                        <span class="absolute top-2 right-2 text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded">(Vùng 3 - ID 4) Alerts Log</span>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-gray-500 text-sm font-semibold uppercase">Nhật ký sự kiện khẩn cấp</h3>
+                            <button class="text-xs text-blue-500 hover:underline">Xóa tất cả</button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Thời gian</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Loại</th>
+                                        <th class="px-4 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">Mô tả chi tiết</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="bg-yellow-50">
+                                        <td class="px-4 py-3 whitespace-nowrap text-gray-900">08:30:15 - Hôm nay</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                XÂM NHẬP
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-yellow-700 font-medium">HC-SR04: Vỏ kính case bị mở nắp!</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 whitespace-nowrap text-gray-500">22:10:00 - Hôm qua</td>
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                XÂM NHẬP
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600">HC-SR04: Vỏ kính case bị mở nắp!</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Code vẽ biểu đồ mẫu bằng Chart.js để giao diện trông chân thực hơn
+        const ctx = document.getElementById('tempChart').getContext('2d');
+        const tempChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50', '11:00'],
+                datasets: [{
+                    label: 'Nhiệt độ (°C)',
+                    data: [32, 33.5, 34, 38.5, 37, 36.5, 35],
+                    borderColor: 'rgb(239, 68, 68)', // Red-500
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        suggestedMin: 25,
+                        suggestedMax: 50
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
