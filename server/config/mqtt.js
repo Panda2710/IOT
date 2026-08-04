@@ -1,26 +1,32 @@
 const mqtt = require('mqtt');
 const db = require('./db');
 
+let mqttClient = null;
+
 // Dùng biến global để lưu tạm danh sách các thiết bị vừa quét được
 global.discoveredDevices = []; 
+
+const TOPIC_DISCOVERY = 'tcta/hk3/nhom2/discovery'; // Nghe kênh 1: Tìm thiết bị mới (Discovery)
+const TOPIC_METRICS = 'tcta/hk3/nhom2/data'; // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
+const TOPIC_ALERTS = 'tcta/hk3/nhom2/alerts'; // Nghe kênh 3: Dữ liệu cảnh báo khẩn cấp (Alerts)
+const TOPIC_CONTROL = 'tcta/hk3/nhom2/control'; // Nghe kênh 4: Gửi tín hiệu điều khiển thiết bị (Control)
 
 const connectMQTT = () => {
     // Kết nối đến Public Broker của HiveMQ
     const client = mqtt.connect('mqtt://broker.hivemq.com:1883');
 
+    mqttClient = client;
+
     client.on('connect', () => {
         console.log('Đã kết nối tới MQTT Broker (HiveMQ)');
         
-        // Nghe kênh 1: Tìm thiết bị mới (Discovery)
-        client.subscribe('tcta/hk3/2026/nhom2/discovery');
-        
-        // Nghe kênh 2: Hứng dữ liệu cảm biến (Data) - dùng cho luồng đo nhiệt độ và độ ẩm.
-        client.subscribe('tcta/hk3/2026/nhom2/data', (err) => {
-            if (!err) console.log('Đang lắng nghe dữ liệu cảm biến...');
-        });
-
-        //Nghe kênh 3: Dữ liệu cảnh báo khẩn cấp - dùng cho luồng chống cháy và chống trộm.
-        client.subscribe('tcta/hk3/2026/nhom2/alerts');
+        client.subscribe([TOPIC_METRICS, TOPIC_ALERTS], (err) => {
+        if (!err) {
+            console.log(`Đang lắng nghe trên các kênh: \n - ${TOPIC_DISCOVERY} \n - ${TOPIC_METRICS} \n - ${TOPIC_ALERTS}`);
+        } else {
+            console.error('Lỗi Subscribe:', err);
+        }
+    });
     });
 
     client.on('message', async (topic, message) => {
@@ -42,18 +48,13 @@ const connectMQTT = () => {
                     }
                 }
             } catch (error) {
+                if (error instanceof SyntaxError) return;
                 console.error('Lỗi đọc dữ liệu MQTT:', error.message);
             }
         }
 
         if(topic === 'tcta/hk3/2026/nhom2/alerts') {
             try {
-                // Cấu trúc JSON alert
-                // {
-                //     "mac": "24:0A:C4:5E:2B:11", 
-                //     "type": "THEFT_DETECTED" || "FIRE_DETECTED" ,
-                //     "msg": "Cảnh báo: Vỏ case bị mở trái phép!" || "Nguy hiểm: Phát hiện khói/chập cháy!"
-                // }
                 const alertData = JSON.parse(message.toString());
                 if (alertData.mac && alertData.type && alertData.msg) {
 
@@ -65,6 +66,7 @@ const connectMQTT = () => {
                     console.log(`\x1b[41m\x1b[37m [KHẨN CẤP] ${alertData.msg} [Thiết bị: ${alertData.mac}] \x1b[0m`);
                 }
             } catch (error) {
+                if (error instanceof SyntaxError) return;
                 console.log('Lỗi lưu luồng sự kiện khẩn cấp:', error.message);
             }
         }
@@ -154,6 +156,7 @@ const connectMQTT = () => {
                         }
                     }
             } catch (error) {
+                if (error instanceof SyntaxError) return;
                 // Bắt lỗi 23503 (Khóa ngoại): Nếu ESP32 gửi data nhưng cái MAC này chưa được thêm vào bảng Devices
                 if (error.code === '23503') {
                     console.log(`Cảnh báo: Thiết bị [${JSON.parse(message.toString()).mac}] đang gửi dữ liệu nhưng chưa được đăng ký trong hệ thống!`);
@@ -172,4 +175,21 @@ const connectMQTT = () => {
     }, 60000);
 };
 
-module.exports = connectMQTT;
+const sendControlCommand = (mac, device, action) => {
+    if (mqttClient) {
+        const topic = 'tcta/hk3/2026/nhom2/control';
+        const payload = JSON.stringify({ mac: mac, device: device, action: action });
+        
+        mqttClient.publish(topic, payload, (err) => {
+            if (err) {
+                console.error(`Lỗi gửi lệnh đến ${device}:`, err);
+            } else {
+                console.log(`\x1b[36m[ĐIỀU KHIỂN] Đã gửi lệnh ${action} cho ${device} (MAC: ${mac})\x1b[0m`);
+            }
+        });
+        return true;
+    }
+    return false;
+};
+
+module.exports = { connectMQTT, sendControlCommand };

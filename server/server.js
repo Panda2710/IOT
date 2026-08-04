@@ -3,7 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const db = require('./config/db');
-const connectMQTT = require('./config/mqtt');
+const { connectMQTT } = require('./config/mqtt');
 const app = express();
 
 connectMQTT();
@@ -33,11 +33,13 @@ app.get('/', async (req, res) => {
 const authRoutes = require('./routes/authRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
 const metricRoutes = require('./routes/metricRoutes');
+const controlRoutes = require('./routes/controlRoutes');
 
 // --- MOUNT ROUTES ---
 app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/metrics', metricRoutes);
+app.use('./api/control', controlRoutes);
 
 //Booting
 const PORT = process.env.PORT || 5000;
