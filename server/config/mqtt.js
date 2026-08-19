@@ -177,14 +177,22 @@ const connectMQTT = () => {
 
 const sendControlCommand = (mac, device, action) => {
     if (mqttClient) {
-        const topic = 'tcta/hk3/2026/nhom2/control';
-        const payload = JSON.stringify({ mac: mac, device: device, action: action });
-        
-        mqttClient.publish(topic, payload, (err) => {
+        // Cấu trúc Topic động: tcta/hk3/2026/nhom2/{MAC_ADDRESS}/{DEVICE}
+        let topic = '';
+        if (device === 'FAN') {
+            topic = `tcta/hk3/2026/nhom2/fan`;
+        } else if (device === 'BUZZER') {
+            topic = `tcta/hk3/2026/nhom2/buzzer`;
+        } else {
+            return false;
+        }
+
+        // Vẫn gửi chuỗi thô để ESP32 dễ đọc
+        mqttClient.publish(topic, action, (err) => {
             if (err) {
                 console.error(`Lỗi gửi lệnh đến ${device}:`, err);
             } else {
-                console.log(`\x1b[36m[ĐIỀU KHIỂN] Đã gửi lệnh ${action} cho ${device} (MAC: ${mac})\x1b[0m`);
+                console.log(`\x1b[36m[ĐIỀU KHIỂN] Đã gửi lệnh ${action} vào kênh ${topic}\x1b[0m cho ${device} (MAC: ${mac})\x1b[0m`);
             }
         });
         return true;
