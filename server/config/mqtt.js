@@ -6,10 +6,10 @@ let mqttClient = null;
 // Dùng biến global để lưu tạm danh sách các thiết bị vừa quét được
 global.discoveredDevices = []; 
 
-const TOPIC_DISCOVERY = 'tcta/hk3/nhom2/discovery'; // Nghe kênh 1: Tìm thiết bị mới (Discovery)
-const TOPIC_METRICS = 'tcta/hk3/nhom2/data'; // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
-const TOPIC_ALERTS = 'tcta/hk3/nhom2/alerts'; // Nghe kênh 3: Dữ liệu cảnh báo khẩn cấp (Alerts)
-const TOPIC_CONTROL = 'tcta/hk3/nhom2/control'; // Nghe kênh 4: Gửi tín hiệu điều khiển thiết bị (Control)
+const TOPIC_DISCOVERY = 'tcta/hk3/2026/nhom2/discovery'; // Nghe kênh 1: Tìm thiết bị mới (Discovery)
+const TOPIC_METRICS = 'tcta/hk3/2026/nhom2/data'; // Nghe kênh 2: Hứng dữ liệu cảm biến (Data)
+const TOPIC_ALERTS = 'tcta/hk3/2026/nhom2/alerts'; // Nghe kênh 3: Dữ liệu cảnh báo khẩn cấp (Alerts)
+const TOPIC_CONTROL = 'tcta/hk3/2026/nhom2/control'; // Nghe kênh 4: Gửi tín hiệu điều khiển thiết bị (Control)
 
 const connectMQTT = () => {
     // Kết nối đến Public Broker của HiveMQ

@@ -26,12 +26,12 @@ PubSubClient client(espClient);
 
 DHT dht(DHTPIN, DHTTYPE);
 
-int sampleTimeinterval = 2000; // Khoảng thời gian lấy mẫu dữ liệu từ cảm biến DHT22 (ms)
-int sampleTime = 0;            //  thời gian ĐÃ lấy mẫu dữ liệu từ cảm biến DHT22
-int gasThreshold = 2000;       // Ngưỡng cảnh báo khí gas (MQ2)
-int alarmThreshold = 10;       // Ngưỡng cảnh báo xâm nhập (cm)
-int lightInterval = 500;       // khoảng đèn sáng tắt (ms)
-int lightTime = 0;             // thời gian đèn đã sáng
+long sampleTimeinterval = 15000; // Khoảng thời gian lấy mẫu dữ liệu từ cảm biến DHT22 (ms)
+long sampleTime = 0;            //  thời gian ĐÃ lấy mẫu dữ liệu từ cảm biến DHT22
+long gasThreshold = 2000;       // Ngưỡng cảnh báo khí gas (MQ2)
+long alarmThreshold = 10;       // Ngưỡng cảnh báo xâm nhập (cm)
+long lightInterval = 500;       // khoảng đèn sáng tắt (ms)
+long lightTime = 0;             // thời gian đèn đã sáng
 int gasWarning = 0;             // trạng thái cảnh báo khí gas
 int alarmWarning = 0;           // trạng thái cảnh báo xâm nhập
 
@@ -103,7 +103,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.printf("Nhận lệnh từ topic %s: %s\n", topic, message.c_str());
 
   // Xử lý điều khiển Quạt
-  if (String(topic) == "tcta/hk3/2026/nhom2/quat")
+  if (String(topic) == "tcta/hk3/2026/nhom2/fan")
   {
     if (message == "ON")
     {
@@ -115,7 +115,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     }
   }
   // Xử lý điều khiển Còi bằng hàm tone()
-  else if (String(topic) == "tcta/hk3/2026/nhom2/coi")
+  else if (String(topic) == "tcta/hk3/2026/nhom2/buzzer")
   {
     if (message == "ON")
     {
@@ -248,9 +248,26 @@ void loop()
     String mac = "11:22:33:44:55:66";
 
     // Ghép dữ liệu chuẩn xác vào mảng bằng snprintf (Định dạng JSON)
-    snprintf(payload, sizeof(payload), "{\"mac\": \"%s\", \"temp\": %.2f, \"hum\": %.2f, \"gas\": %d,\"trespass\": %d}", mac.c_str(), t, h, gasWarning, alarmWarning);
+    snprintf(payload, sizeof(payload), "{\"mac\": \"%s\", \"temp\": %.2f, \"hum\": %.2f}", mac.c_str(), t, h);
 
     // Gửi  lên HiveMQ
+    char  payload1[100];
+    if(alarmWarning)
+    {
+      snprintf(payload1, sizeof(payload1), "{\"mac\": \"%s\", \"type\": \"tresspass\", \"msg\": \"Phát hiện xâm nhập!\"}", mac.c_str());
+
+      if(client.publish("tcta/hk3/2026/nhom2/alerts", payload1))
+      {
+        Serial.print("=> GUI THANH CONG: ");
+        Serial.println(payload1);
+        alarmWarning=0;
+      }
+      else
+      {
+        Serial.println("=> LOI: GUI THAT BAI!");
+      }
+    }
+
 
     if (client.publish("tcta/hk3/2026/nhom2/data", payload))
     {

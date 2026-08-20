@@ -39,7 +39,7 @@ const controlRoutes = require('./routes/controlRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/metrics', metricRoutes);
-app.use('./api/control', controlRoutes);
+app.use('/api/control', controlRoutes);
 
 //Booting
 const PORT = process.env.PORT || 5000;
