@@ -26,14 +26,17 @@ PubSubClient client(espClient);
 
 DHT dht(DHTPIN, DHTTYPE);
 
-long sampleTimeinterval = 15000; // Khoảng thời gian lấy mẫu dữ liệu từ cảm biến DHT22 (ms)
-long sampleTime = 0;            //  thời gian ĐÃ lấy mẫu dữ liệu từ cảm biến DHT22
+long sampleTimeinterval = 10000; // Khoảng thời gian lấy mẫu dữ liệu từ cảm biến DHT22 (ms)
+long sampleTime = 0;            //  thời gian ĐÃ lấy mẫu dữ liệu từ cảm biến DHT22 va gửi lên HiveMQ (ms)
 long gasThreshold = 2000;       // Ngưỡng cảnh báo khí gas (MQ2)
 long alarmThreshold = 10;       // Ngưỡng cảnh báo xâm nhập (cm)
 long lightInterval = 500;       // khoảng đèn sáng tắt (ms)
 long lightTime = 0;             // thời gian đèn đã sáng
 int gasWarning = 0;             // trạng thái cảnh báo khí gas
 int alarmWarning = 0;           // trạng thái cảnh báo xâm nhập
+long delayTime = 0;              //delay giữa các lần gửi   
+int PWM = 0;
+
 
 
 
@@ -119,11 +122,13 @@ void callback(char *topic, byte *payload, unsigned int length)
   {
     if (message == "ON")
     {
-      tone(BUZZERPIN, 1000); // Bật còi với tần số 1000Hz
+      ledcWriteTone(PWM, 262);
+      Serial.println("Buzzer ON");
     }
     else if (message == "OFF")
     {
-      noTone(BUZZERPIN); // Tắt còi
+      ledcWriteTone(PWM, 0);
+      Serial.println("Buzzer OFF");
     }
   }
 }
@@ -150,6 +155,8 @@ void setup()
   pinMode(ECHO, INPUT);
   pinMode(LEDPIN, OUTPUT);
   pinMode(BUZZERPIN, OUTPUT);
+  ledcSetup(PWM, 262, 8);    // Cấu hình kênh PWM 0 với tần số 262Hz và độ phân giải 8 bit
+  ledcAttachPin(BUZZERPIN, PWM); // Gán chân BUZZERPIN vào kênh PWM 0
   pinMode(RELAYPIN, OUTPUT);
   // Khởi động cảm biến DHT
   dht.begin();
@@ -190,9 +197,9 @@ void loop()
   }
 
   // Lấy dữ liệu từ các cảm biến
-  if (millis() - sampleTime > sampleTimeinterval)
+  if (millis() - delayTime > 2000)
   {
-    sampleTime = millis();
+    delayTime = millis();
     h = dht.readHumidity();
     t = dht.readTemperature();
     if (isnan(h) || isnan(t))
@@ -242,7 +249,11 @@ void loop()
     Serial.print(F("%  |  Nhiệt độ: "));
     Serial.print(t);
     Serial.println(F("°C "));
+  }
 
+if (millis() - sampleTime > sampleTimeinterval)
+  {
+    sampleTime = millis();
     char payload[200]; // Tạo một mảng trống chứa tối đa 200 ký tự
     // String mac = WiFi.macAddress();
     String mac = "11:22:33:44:55:66";
