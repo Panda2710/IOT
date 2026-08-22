@@ -79,7 +79,7 @@ void reconnect()
                "{\"mac\": \"%s\", \"name\": \"Smart PC Case Nhóm 21\"}", mac.c_str());
 
       // Gửi lên topic discovery 1 lần duy nhất lúc vừa kết nối
-      client.publish("tcta/hk3/2026/nhom2/discovery", discoveryPayload);
+      client.publish("tcta/hk3/2026/nhom2/discovery", discoveryPayload, true);
       Serial.println("=> Da gui thong tin Discovery cho Backend!");
       // ================================================================
       client.subscribe("tcta/hk3/2026/nhom2/fan");
