@@ -256,7 +256,7 @@ if (millis() - sampleTime > sampleTimeinterval)
     sampleTime = millis();
     char payload[200]; // Tạo một mảng trống chứa tối đa 200 ký tự
     // String mac = WiFi.macAddress();
-    String mac = "11:22:33:44:55:66";
+    String mac = "11:22:33:44:55:67";
 
     // Ghép dữ liệu chuẩn xác vào mảng bằng snprintf (Định dạng JSON)
     snprintf(payload, sizeof(payload), "{\"mac\": \"%s\", \"temp\": %.2f, \"hum\": %.2f}", mac.c_str(), t, h);
